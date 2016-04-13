@@ -6,6 +6,10 @@
  * Author: deeem
  */
 
+/*
+ *                  METABOX
+ */
+
  /* Adds a meta box to the post edit screen */
 add_action( 'add_meta_boxes', 'tobeornot_add_custom_box' );
 function tobeornot_add_custom_box() {
@@ -49,3 +53,21 @@ function tobeornot_save_postdata( $post_id ) {
         );
     }
 }
+
+/*
+ *                  ENQUEUE SCRIPTS
+ */
+
+ /* Admin Screen */
+function enqueue_scripts() {
+    $screen = get_current_screen();
+    if ( $screen->id == 'post' ) {
+        wp_enqueue_script( 'jquery-ui-datepicker' );
+        wp_enqueue_script( 'jquery-ui-slider' );
+        wp_enqueue_script( 'jquery-ui-timepicker-addon', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.1/jquery-ui-timepicker-addon.js', array( 'jquery', 'jquery-ui-datepicker', 'jquery-ui-slider' ) );
+        wp_enqueue_script( 'jquery-ui-timepicker-addon-ru', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.1/i18n/jquery-ui-timepicker-ru.js', array( 'jquery', 'jquery-ui-datepicker', 'jquery-ui-slider', 'jquery-ui-timepicker-addon') );
+        wp_enqueue_style( 'jquery-ui-timepicker-addon', 'https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.1/jquery-ui-timepicker-addon.css' );
+        wp_enqueue_script( 'tobeornot-admin', plugin_dir_url( __FILE__ ) . '/tobeornot-admin.js', array( 'jquery' ) );
+    }
+}
+add_action( 'admin_enqueue_scripts', 'enqueue_scripts' );
