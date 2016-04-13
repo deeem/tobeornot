@@ -1,7 +1,8 @@
 <?php
 $tobeornot_title = get_post_meta( $post->ID, '_tobeornot_title', true );
 $tobeornot_description = get_post_meta( $post->ID, '_tobeornot_description', true );
-$tobeornot_date = get_post_meta( $post->ID, '_tobeornot_date', true );
+$tobeornot_timestamp = get_post_meta( $post->ID, '_tobeornot_date', true );
+$tobeornot_date = ( empty( $tobeornot_timestamp )) ? '' : DateTime::createFromFormat( 'U', $tobeornot_timestamp )->format( 'd.m.Y H:i' );
 ?>
 
 <p>
