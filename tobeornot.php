@@ -89,10 +89,10 @@ add_action( 'manage_post_posts_columns', 'manage_columns_for_posts' );
 /* Populate columns */
 function populate_posts_columns( $column, $post_id ) {
     if ( $column == 'tobeornot_counter' ) {
-        $tobeornot_timestamp = get_post_meta( $post_id, '_tobeornot_date', true );
 
-        if ( !empty( $tobeornot_timestamp ) ) {
-            echo tobeornot_interval( $tobeornot_timestamp );
+        $message = tobeornot_interval( $post_id );
+        if ( $message ) {
+            echo $message;
         }
 
     }
@@ -102,12 +102,17 @@ add_action( 'manage_post_posts_custom_column', 'populate_posts_columns', 10, 2 )
 /**
  * Represent a date interval from now till given date
  */
-function tobeornot_interval ( $event_timestamp ) {
-    $now = new DateTime();
-    $counter = DateTime::createFromFormat( 'U', $event_timestamp )->diff( $now );
+function tobeornot_interval ( $post_id ) {
 
-    if ( $event_timestamp < $now->format( 'U' ) ) return 'завершён';
-    
+    $timestamp = get_post_meta( $post_id, '_tobeornot_date', true );
+
+    if ( empty( $timestamp ) ) return;
+
+    $now = new DateTime();
+    $counter = DateTime::createFromFormat( 'U', $timestamp )->diff( $now );
+
+    if ( $timestamp < $now->format( 'U' ) ) return 'завершён';
+
     $message = '';
     $message .= ( $counter->y ) ? $counter->y . ' г. ' : '';
     $message .= ( $counter->m ) ? $counter->m . ' м. ' : '';
@@ -118,3 +123,28 @@ function tobeornot_interval ( $event_timestamp ) {
 
     return $message;
 }
+
+/*
+ *           DISPLAYING COUNTER AND POLL
+ */
+
+/* Title modify */
+function change_post_title( $title, $id ) {
+    $counter = tobeornot_interval( $id );
+
+    if ( 'post' == get_post_type() && in_the_loop() ) {
+        if ( is_single() ) {
+            if ( $counter ) {
+                $title = '<span style="display:block;color:red;">До завершения: ' . $counter . '</span>' . $title;
+            }
+        }
+        if ( is_archive() ) {
+            if ( $counter ) {
+                $title = '<span style="display:block;color:blue;">До завершения: ' . $counter . '</span>' . $title;
+            }
+        }
+    }
+
+    return $title;
+}
+add_filter( 'the_title', 'change_post_title', 10, 2 );
