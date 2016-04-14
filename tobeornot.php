@@ -73,3 +73,48 @@ function enqueue_scripts() {
     }
 }
 add_action( 'admin_enqueue_scripts', 'enqueue_scripts' );
+
+/*
+ *                  ADMIN COLUMNS
+ */
+
+/* Manage columns */
+function manage_columns_for_posts( $columns ) {
+    $columns['tobeornot_counter'] = 'До завершения';
+
+    return $columns;
+}
+add_action( 'manage_post_posts_columns', 'manage_columns_for_posts' );
+
+/* Populate columns */
+function populate_posts_columns( $column, $post_id ) {
+    if ( $column == 'tobeornot_counter' ) {
+        $tobeornot_timestamp = get_post_meta( $post_id, '_tobeornot_date', true );
+
+        if ( !empty( $tobeornot_timestamp ) ) {
+            echo tobeornot_interval( $tobeornot_timestamp );
+        }
+
+    }
+}
+add_action( 'manage_post_posts_custom_column', 'populate_posts_columns', 10, 2 );
+
+/**
+ * Represent a date interval from now till given date
+ */
+function tobeornot_interval ( $event_timestamp ) {
+    $now = new DateTime();
+    $counter = DateTime::createFromFormat( 'U', $event_timestamp )->diff( $now );
+
+    if ( $event_timestamp < $now->format( 'U' ) ) return 'завершён';
+    
+    $message = '';
+    $message .= ( $counter->y ) ? $counter->y . ' г. ' : '';
+    $message .= ( $counter->m ) ? $counter->m . ' м. ' : '';
+    $message .= ( $counter->d ) ? $counter->d . ' д. ' : '';
+    $message .= ( $counter->h ) ? $counter->h . ' ч. ' : '';
+    $message .= ( $counter->i ) ? $counter->i . ' м. ' : '';
+    $message .= ( $counter->s ) ? $counter->s . ' с. ' : '';
+
+    return $message;
+}
