@@ -24,7 +24,7 @@ function tobeornot_add_custom_box() {
  /* Prints the box content */
 function tobeornot_inner_custom_box( $post ) {
     ob_start();
-    require_once plugin_dir_path( __FILE__ ) . '/tobeornot_custom_box.php';
+    require_once plugin_dir_path( __FILE__ ) . '/partials/metabox.php';
     ob_end_flush();
 }
 
@@ -46,12 +46,14 @@ function tobeornot_save_postdata( $post_id ) {
         );
     }
     if ( array_key_exists('tobeornot_date', $_POST ) ) {
-        $date = DateTime::createFromFormat( 'd.m.Y H:i', $_POST['tobeornot_date'] );
-        update_post_meta(
-            $post_id,
-            '_tobeornot_date',
-            $date->getTimestamp()
-        );
+        if ( !empty( $_POST['tobeornot_date'] ) ) {
+            $date = DateTime::createFromFormat( 'd.m.Y H:i', $_POST['tobeornot_date'] );
+            update_post_meta(
+                $post_id,
+                '_tobeornot_date',
+                $date->getTimestamp()
+            );
+        }
     }
 }
 
@@ -74,6 +76,11 @@ function enqueue_scripts() {
 }
 add_action( 'admin_enqueue_scripts', 'enqueue_scripts' );
 
+function enqueue_public_scripts() {
+    wp_enqueue_style( 'tobeornot-public', plugin_dir_url( __FILE__ ) . '/tobeornot-public.css' );
+}
+add_action( 'wp_enqueue_scripts', 'enqueue_public_scripts' );
+
 /*
  *                  ADMIN COLUMNS
  */
@@ -89,29 +96,105 @@ add_action( 'manage_post_posts_columns', 'manage_columns_for_posts' );
 /* Populate columns */
 function populate_posts_columns( $column, $post_id ) {
     if ( $column == 'tobeornot_counter' ) {
-
-        $message = tobeornot_interval( $post_id );
-        if ( $message ) {
-            echo $message;
+        $counter = do_shortcode( '[tobeornot admin id=' . $post_id . ']' );
+        if ( $counter ) {
+            echo $counter;
         }
-
     }
 }
 add_action( 'manage_post_posts_custom_column', 'populate_posts_columns', 10, 2 );
 
-/**
- * Represent a date interval from now till given date
+/*
+ *           DISPLAYING COUNTER AND POLL
  */
-function tobeornot_interval ( $post_id ) {
 
+/* Modify title */
+function change_post_title( $title, $id ) {
+    if ( 'post' == get_post_type() && in_the_loop() ) {
+        $counter = do_shortcode( '[tobeornot counter id=' . $id . ']' );
+        if ( is_single() ) {
+            $title = $counter . $title;
+        }
+        if ( is_archive() ) {
+            $title = $title . $counter;
+        }
+    }
+
+    return $title;
+}
+add_filter( 'the_title', 'change_post_title', 10, 2 );
+
+/* Modify content */
+function change_post_content( $content ) {
+    $voter = do_shortcode( '[tobeornot voter]' );
+    return $content . $voter;
+}
+add_filter( 'the_content', 'change_post_content' );
+
+/*
+ *          SHORTCODES
+ */
+
+/* [tobeornot] Shortcode
+ *
+ * [tobeornot (counter|voter|admin)]
+ * counter - счётчик обратного отсчёта
+ * voter - кнопки для голосования
+ * admin - счётчик обратного отсчёта для админки
+ */
+function tobeornot_shortcode( $atts ) {
+
+    if ( !is_array( $atts ) ) return;
+
+    $id = ( $atts['id'] ) ? $atts['id'] : get_the_ID();
+    $message = counter_message( $id );
+    $html = '';
+
+    // counter
+    if ( in_array( 'counter', $atts ) ) {
+        ob_start();
+        require plugin_dir_path( __FILE__ ) . '/partials/shortcode_counter.php';
+        $partial = ob_get_clean();
+        $html .= $partial;
+    }
+    // admin
+    if ( in_array( 'admin', $atts ) ) {
+        ob_start();
+        require plugin_dir_path( __FILE__ ) . '/partials/shortcode_admin.php';
+        $partial = ob_get_clean();
+        $html .= $partial;
+    }
+    // voter
+    if ( in_array( 'voter', $atts ) ) {
+        if ( !empty( $message ) ) {
+            ob_start();
+            require plugin_dir_path( __FILE__ ) . '/partials/shortcode_voter.php';
+            $partial = ob_get_clean();
+            $html .= $partial;
+        }
+    }
+
+    return $html;
+}
+function tobeornot_shortcode_register() {
+    add_shortcode( 'tobeornot', 'tobeornot_shortcode' );
+}
+add_action( 'init', 'tobeornot_shortcode_register' );
+
+/**
+ * Формирует сообщение о дате завершения голосования
+ * @param integer $post_id post id
+ * @return string|false|null сообщение с оставшемя временем, null в случае просроченной даты, false в случае не установленной даты
+ */
+function counter_message( $post_id ) {
     $timestamp = get_post_meta( $post_id, '_tobeornot_date', true );
 
-    if ( empty( $timestamp ) ) return;
+    if ( empty( $timestamp ) )  return FALSE;
 
     $now = new DateTime();
     $counter = DateTime::createFromFormat( 'U', $timestamp )->diff( $now );
 
-    if ( $timestamp < $now->format( 'U' ) ) return 'завершён';
+    if ( $timestamp < $now->format( 'U' ) ) return NULL;
 
     $message = '';
     $message .= ( $counter->y ) ? $counter->y . ' г. ' : '';
@@ -123,28 +206,3 @@ function tobeornot_interval ( $post_id ) {
 
     return $message;
 }
-
-/*
- *           DISPLAYING COUNTER AND POLL
- */
-
-/* Title modify */
-function change_post_title( $title, $id ) {
-    $counter = tobeornot_interval( $id );
-
-    if ( 'post' == get_post_type() && in_the_loop() ) {
-        if ( is_single() ) {
-            if ( $counter ) {
-                $title = '<span style="display:block;color:red;">До завершения: ' . $counter . '</span>' . $title;
-            }
-        }
-        if ( is_archive() ) {
-            if ( $counter ) {
-                $title = '<span style="display:block;color:blue;">До завершения: ' . $counter . '</span>' . $title;
-            }
-        }
-    }
-
-    return $title;
-}
-add_filter( 'the_title', 'change_post_title', 10, 2 );
