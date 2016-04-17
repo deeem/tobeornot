@@ -4,42 +4,50 @@
 .tobeornot_counter--message {
     color: #1478AB;
 }
-.tobeornot_counter--message::before {
-    content: 'До завершения: ';
-}
 
 .tobeornot_voter {
     width: 100%;
     border: 1px solid #000;
     padding: 20px;
 }
-.tobeornot_voter--button {
+.tobeornot_voter--buttonbar > div {
     display: inline-block;
     width: 49%;
-    cursor: pointer;
     color: white;
     text-align: center;
     font-size: 2em;
     font-weight: bold;
     text-transform: uppercase;
 }
-.tobeornot_voter--button-true {
+.active .tobeornot_voter--button_true {
     -webkit-transition: all .5s ease-out 0.1s;
     -moz-transition: all .5s ease-out 0.1s;
     -o-transition: all .5s ease-out 0.1s;
     transition: all .5s ease-out 0.1s;
     background-color: rgba(39,146,112,.4);
+    cursor: pointer;
 }
-.tobeornot_voter--button-true:hover {
+.active .tobeornot_voter--button_true:hover,
+.active .tobeornot_voter--button_true.selected {
     background-color: rgba(39,146,112,1);
 }
-.tobeornot_voter--button-false {
+.active .tobeornot_voter--button_false {
     -webkit-transition: all .5s ease-out 0.1s;
     -moz-transition: all .5s ease-out 0.1s;
     -o-transition: all .5s ease-out 0.1s;
     transition: all .5s ease-out 0.1s;
     background-color: rgba(158,11,23,.4);
+    cursor: pointer;
 }
-.tobeornot_voter--button-false:hover {
+.active .tobeornot_voter--button_false:hover,
+.active .tobeornot_voter--button_false.selected {
     background-color: rgba(158,11,23,1);
+}
+.inactive .tobeornot_voter--button_true,
+.inactive .tobeornot_voter--button_false {
+    background-color: rgba(64,64,64,.2);
+}
+.inactive .tobeornot_voter--button_true.selected,
+.inactive .tobeornot_voter--button_false.selected {
+    background-color: rgb(64,64,64);
 }

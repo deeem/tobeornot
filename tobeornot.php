@@ -76,8 +76,16 @@ function enqueue_scripts() {
 }
 add_action( 'admin_enqueue_scripts', 'enqueue_scripts' );
 
+/* Public scripts */
 function enqueue_public_scripts() {
     wp_enqueue_style( 'tobeornot-public', plugin_dir_url( __FILE__ ) . '/tobeornot-public.css' );
+
+    wp_enqueue_script( 'tobeornot-public', plugin_dir_url( __FILE__ ) . '/tobeornot-public.js', array( 'jquery' ) );
+    $ajax_params = array(
+        'ajax_url' => admin_url( 'admin-ajax.php' ),
+        'post_id' => get_the_ID()
+     );
+    wp_localize_script( "tobeornot-public", "ajax_params", $ajax_params );
 }
 add_action( 'wp_enqueue_scripts', 'enqueue_public_scripts' );
 
@@ -126,8 +134,10 @@ add_filter( 'the_title', 'change_post_title', 10, 2 );
 
 /* Modify content */
 function change_post_content( $content ) {
-    $voter = do_shortcode( '[tobeornot voter]' );
-    return $content . $voter;
+    if ( 'post' == get_post_type() ) {
+        $voter = do_shortcode( '[tobeornot voter]' );
+        return $content . $voter;
+    }
 }
 add_filter( 'the_content', 'change_post_content' );
 
