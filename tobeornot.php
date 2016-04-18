@@ -227,16 +227,33 @@ function counter_message( $post_id ) {
         die ( 'Busted!' );
     }
 
-    // получить post_meta _tobeornot_true | _tobeornot_false
-    // увеличить на 1
-    // записать
+    $post_id = intval( $_POST['post_id'] );
+    if ( ! counter_message( $post_id ) ) {
+        die ( 'Busted!' );
+    }
 
-    // generate the response
-    // $response = json_encode( $_POST );
+    $result = $_POST['result'];
+    if ( ! in_array( $result, array( 'true', 'false' ) ) ) {
+        die ( 'Busted!' );
+    }
 
+    if ( $result == 'true' ) {
+        $vote_true = intval( get_post_meta( $post_id, '_tobeornot_true', true ) );
+        update_post_meta( $post_id, '_tobeornot_true', $vote_true + 1 );
+    }
+
+    if ( $result == 'false' ) {
+        $vote_false = intval( get_post_meta( $post_id, '_tobeornot_false', true ) );
+        update_post_meta( $post_id, '_tobeornot_false', $vote_false + 1 );
+    }
+
+    $counter = intval( get_post_meta( $post_id, '_tobeornot_votes', true ) );
+    update_post_meta( $post_id, '_tobeornot_votes' , ++$counter );
+    
     // response output
-    header( "Content-Type: application/json" );
-    echo $response;
+    // header( "Content-Type: application/json" );
+    // echo $response;
+    // echo $counter;
     exit;
  }
  add_action( 'wp_ajax_tobeornot-ajax-public', 'tobeornot_ajax_public' );
