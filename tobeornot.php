@@ -249,11 +249,10 @@ function counter_message( $post_id ) {
 
     $counter = intval( get_post_meta( $post_id, '_tobeornot_votes', true ) );
     update_post_meta( $post_id, '_tobeornot_votes' , ++$counter );
-    
+
     // response output
     // header( "Content-Type: application/json" );
     // echo $response;
-    // echo $counter;
     exit;
  }
  add_action( 'wp_ajax_tobeornot-ajax-public', 'tobeornot_ajax_public' );

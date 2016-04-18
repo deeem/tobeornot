@@ -1,15 +1,26 @@
 ;(function($){
-    $(function(){
 
-        // если есть voter,значит можно голосовать
-        if ( $('.tobeornot_voter').length ) {
+    var Tobeornot = {
+        init: function( settings ) {
+            Tobeornot.voter = settings.voter;
+            Tobeornot.tobe = settings.tobe;
+            Tobeornot.nottobe = settings.nottobe;
+            Tobeornot.bindEvents();
 
-            // если не голосовал
+            // если голос не записан в localStorage, сделать голосование активным
             if (!localStorage.getItem('tobeornot-' + tobeornot_ajax.post_id)) {
+                Tobeornot.voter.trigger('setActive');
+            } else {
+                Tobeornot.voter.trigger('setSelected', localStorage.getItem('tobeornot-' + tobeornot_ajax.post_id));
+            }
+        },
+        bindEvents: function() {
 
-                $('.tobeornot_voter').addClass('active');
+            Tobeornot.voter.on('setActive', function() {
+                Tobeornot.voter.addClass('active');
 
-                $('#tobeornot-true').on( 'click', function() {
+                // проголосовал true
+                Tobeornot.tobe.one( 'click', function() {
                     $.post( tobeornot_ajax.ajax_url,
                         {
                             action: 'tobeornot-ajax-public',
@@ -18,13 +29,14 @@
                             result: 'true'
                         },
                         function( response ) {
-                            $('.tobeornot_voter--button_true').addClass('selected');
-                            $('.tobeornot_voter--button_false').removeClass('selected');
-                            localStorage.setItem('tobeornot-' + tobeornot_ajax.post_id, true);
+                            localStorage.setItem('tobeornot-' + tobeornot_ajax.post_id, 'tobe');
+                            Tobeornot.nottobe.off();
+                            Tobeornot.voter.trigger('setSelected', 'tobe');
                         }
                     );
                 });
-                $('#tobeornot-false').on( 'click', function() {
+                // проголосовал false
+                Tobeornot.nottobe.one( 'click', function() {
                     $.post( tobeornot_ajax.ajax_url,
                         {
                             action: 'tobeornot-ajax-public',
@@ -33,21 +45,34 @@
                             result: 'false'
                         },
                         function( response ) {
-                            $('.tobeornot_voter--button_false').addClass('selected');
-                            $('.tobeornot_voter--button_true').removeClass('selected');
-                            localStorage.setItem('tobeornot-' + tobeornot_ajax.post_id, false);
+                            localStorage.setItem('tobeornot-' + tobeornot_ajax.post_id, 'nottobe');
+                            Tobeornot.tobe.off();
+                            Tobeornot.voter.trigger('setSelected', 'nottobe');
                         }
                     );
                 });
-            } else {    //если голосовал, заблокировать
-                $('.tobeornot_voter').addClass('inactive');
-                if ( localStorage.getItem('tobeornot-' + tobeornot_ajax.post_id) === 'true') {
-                    $('.tobeornot_voter--button_true').addClass('selected');
+
+            });
+
+            Tobeornot.voter.on('setSelected', function( event, param ) {
+                Tobeornot.voter.removeClass('active');
+                if (param == 'tobe') {
+                    Tobeornot.tobe.addClass('selected');
                 } else {
-                    $('.tobeornot_voter--button_false').addClass('selected');
+                    Tobeornot.nottobe.addClass('selected');
                 }
-            }
-        }
+            });
+
+        },
+    };
+
+    $(function(){
+
+        Tobeornot.init({
+            voter: $('.tobeornot_voter'),
+            tobe: $('#tobeornot-true'),
+            nottobe: $('#tobeornot-false'),
+        });
 
     });
 })(jQuery);

@@ -10,7 +10,7 @@
     border: 1px solid #000;
     padding: 20px;
 }
-.tobeornot_voter--buttonbar > div {
+.tobeornot_voter--button {
     display: inline-block;
     width: 49%;
     color: white;
@@ -18,36 +18,30 @@
     font-size: 2em;
     font-weight: bold;
     text-transform: uppercase;
+    -webkit-transition: all 1s ease-out 0.1s;
+    -moz-transition: all 1s ease-out 0.1s;
+    -o-transition: all 1s ease-out 0.1s;
+    transition: all 1s ease-out 0.1s;
 }
-.active .tobeornot_voter--button_true {
-    -webkit-transition: all .5s ease-out 0.1s;
-    -moz-transition: all .5s ease-out 0.1s;
-    -o-transition: all .5s ease-out 0.1s;
-    transition: all .5s ease-out 0.1s;
+.active .tobeornot_voter--button-true {
     background-color: rgba(39,146,112,.4);
     cursor: pointer;
 }
-.active .tobeornot_voter--button_true:hover,
-.active .tobeornot_voter--button_true.selected {
+.active .tobeornot_voter--button-true:hover {
     background-color: rgba(39,146,112,1);
 }
-.active .tobeornot_voter--button_false {
-    -webkit-transition: all .5s ease-out 0.1s;
-    -moz-transition: all .5s ease-out 0.1s;
-    -o-transition: all .5s ease-out 0.1s;
-    transition: all .5s ease-out 0.1s;
+.active .tobeornot_voter--button-false {
     background-color: rgba(158,11,23,.4);
     cursor: pointer;
 }
-.active .tobeornot_voter--button_false:hover,
-.active .tobeornot_voter--button_false.selected {
+.active .tobeornot_voter--button-false:hover{
     background-color: rgba(158,11,23,1);
 }
-.inactive .tobeornot_voter--button_true,
-.inactive .tobeornot_voter--button_false {
+.tobeornot_voter--button-true,
+.tobeornot_voter--button-false {
     background-color: rgba(64,64,64,.2);
 }
-.inactive .tobeornot_voter--button_true.selected,
-.inactive .tobeornot_voter--button_false.selected {
+.tobeornot_voter--button-true.selected,
+.tobeornot_voter--button-false.selected {
     background-color: rgb(64,64,64);
 }
