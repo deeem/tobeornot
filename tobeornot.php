@@ -79,13 +79,13 @@ add_action( 'admin_enqueue_scripts', 'enqueue_scripts' );
 /* Public scripts */
 function enqueue_public_scripts() {
     wp_enqueue_style( 'tobeornot-public', plugin_dir_url( __FILE__ ) . '/tobeornot-public.css' );
-
     wp_enqueue_script( 'tobeornot-public', plugin_dir_url( __FILE__ ) . '/tobeornot-public.js', array( 'jquery' ) );
     $ajax_params = array(
         'ajax_url' => admin_url( 'admin-ajax.php' ),
-        'post_id' => get_the_ID()
+        'post_id' => get_the_ID(),
+        'nonce' => wp_create_nonce( 'tobeornot-nonce' )
      );
-    wp_localize_script( "tobeornot-public", "ajax_params", $ajax_params );
+    wp_localize_script( "tobeornot-public", "tobeornot_ajax", $ajax_params );
 }
 add_action( 'wp_enqueue_scripts', 'enqueue_public_scripts' );
 
@@ -216,3 +216,28 @@ function counter_message( $post_id ) {
 
     return $message;
 }
+
+/*
+ *                  AJAX
+ */
+ function tobeornot_ajax_public() {
+    // check nonce
+    $nonce = $_POST['nonce'];
+    if ( ! wp_verify_nonce( $nonce, 'tobeornot-nonce' ) ) {
+        die ( 'Busted!' );
+    }
+
+    // получить post_meta _tobeornot_true | _tobeornot_false
+    // увеличить на 1
+    // записать
+
+    // generate the response
+    // $response = json_encode( $_POST );
+
+    // response output
+    header( "Content-Type: application/json" );
+    echo $response;
+    exit;
+ }
+ add_action( 'wp_ajax_tobeornot-ajax-public', 'tobeornot_ajax_public' );
+ add_action( 'wp_ajax_nopriv_tobeornot-ajax-public', 'tobeornot_ajax_public' );
