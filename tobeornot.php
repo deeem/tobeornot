@@ -147,9 +147,10 @@ add_filter( 'the_content', 'change_post_content' );
 
 /* [tobeornot] Shortcode
  *
- * [tobeornot (counter|voter|admin)]
+ * [tobeornot (counter|voter|result|admin)]
  * counter - счётчик обратного отсчёта
  * voter - кнопки для голосования
+ * result - результаты голосования
  * admin - счётчик обратного отсчёта для админки
  */
 function tobeornot_shortcode( $atts ) {
@@ -182,6 +183,15 @@ function tobeornot_shortcode( $atts ) {
             $partial = ob_get_clean();
             $html .= $partial;
         }
+    }
+    // result
+    if ( in_array( 'result', $atts ) ) {
+        $tobeornot_true = get_post_meta( $id, '_tobeornot_true', true );
+        $tobeornot_false = get_post_meta( $id, '_tobeornot_false', true );        
+        ob_start();
+        require plugin_dir_path( __FILE__ ) . '/partials/shortcode_result.php';
+        $partial = ob_get_clean();
+        $html .= $partial;
     }
 
     return $html;

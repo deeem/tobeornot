@@ -45,3 +45,7 @@
 .tobeornot_voter--button-false.selected {
     background-color: rgb(64,64,64);
 }
+
+.tobeornot_result {}
+.tobeornot_result--true {}
+.tobeornot_result--false {}
