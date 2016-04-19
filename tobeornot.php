@@ -31,20 +31,6 @@ function tobeornot_inner_custom_box( $post ) {
 /* Saving Values */
 add_action( 'save_post', 'tobeornot_save_postdata' );
 function tobeornot_save_postdata( $post_id ) {
-    if ( array_key_exists('tobeornot_title', $_POST ) ) {
-        update_post_meta(
-            $post_id,
-            '_tobeornot_title',
-            $_POST['tobeornot_title']
-        );
-    }
-    if ( array_key_exists('tobeornot_description', $_POST ) ) {
-        update_post_meta(
-            $post_id,
-            '_tobeornot_description',
-            $_POST['tobeornot_description']
-        );
-    }
     if ( array_key_exists('tobeornot_date', $_POST ) ) {
         if ( !empty( $_POST['tobeornot_date'] ) ) {
             $date = DateTime::createFromFormat( 'd.m.Y H:i', $_POST['tobeornot_date'] );
@@ -187,7 +173,7 @@ function tobeornot_shortcode( $atts ) {
     // result
     if ( in_array( 'result', $atts ) ) {
         $tobeornot_true = get_post_meta( $id, '_tobeornot_true', true );
-        $tobeornot_false = get_post_meta( $id, '_tobeornot_false', true );        
+        $tobeornot_false = get_post_meta( $id, '_tobeornot_false', true );
         ob_start();
         require plugin_dir_path( __FILE__ ) . '/partials/shortcode_result.php';
         $partial = ob_get_clean();
