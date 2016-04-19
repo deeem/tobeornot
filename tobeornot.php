@@ -131,6 +131,136 @@ add_filter( 'the_content', 'change_post_content' );
  *          SHORTCODES
  */
 
+/* [tobeontop] Shortcode
+ * Выводит ссылки на посты, отобранные по 3-м критериям:
+ * - по дате публикации (ранние сверху)
+ * - по самым голосуемым
+ * - по самым близким к завершению
+ * Если выводится на главной странице, то отбор идёт по всем постам
+ * во всех категориях постов, а если из категории, то выбираются посты
+ * принадлежащие этой категории
+ */
+function tobeontop_shortcode( $atts ) {
+    if ( ! 'post' == get_post_type() ) return;
+
+    $html = '';
+
+    if ( is_front_page() ) {
+
+        // отобрать посты по дате публикации
+        $args_latest = array(
+            'posts_per_page' => 5,
+            'meta_query' => array(
+                array(
+                    'key' => '_tobeornot_date',
+                    'value' => '0',
+                    'compare' => '>',
+                    'type' => 'NUMERIC'
+                )
+            ),
+            'orderby' => 'date',
+            'order' => 'DESC'
+        );
+        // отобрать самые голосуемые
+        $args_popular = array(
+            'posts_per_page' => 5,
+            'meta_query' => array(
+                array(
+                    'key' => '_tobeornot_votes',
+                    'value' => '0',
+                    'compare' => '>',
+                    'type' => 'NUMERIC'
+                )
+            ),
+            'orderby' => 'meta_value_num',
+            'meta_key' => '_tobeornot_votes',
+            'order' => 'DESC'
+        );
+        // отобрать подходищие к завершению
+        $now = new DateTime();
+        $args_closest = array(
+            'posts_per_page' => 5,
+            'meta_query' => array(
+                array(
+                    'key' => '_tobeornot_date',
+                    'value' => $now->format( 'U' ),
+                    'compare' => '>',
+                    'type' => 'NUMERIC'
+                )
+            ),
+            'orderby' => 'meta_value_num',
+            'meta_key' => '_tobeornot_date',
+            'order' => 'ASC'
+        );
+
+        ob_start();
+        require plugin_dir_path( __FILE__ ) . '/partials/shortcode_top.php';
+        $partial = ob_get_clean();
+        $html .= $partial;
+
+    } elseif ( is_category() ){
+
+        $categories = get_the_category();
+        $category_id = $categories[0]->term_id;
+
+        // отобрать посты по дате публикации
+        $args_latest = array(
+            'posts_per_page' => 5,
+            'cat' => $category_id,
+            'meta_query' => array(
+                array(
+                    'key' => '_tobeornot_date',
+                    'value' => '0',
+                    'compare' => '>',
+                    'type' => 'NUMERIC'
+                )
+            ),
+            'orderby' => 'date',
+            'order' => 'DESC'
+        );
+        // отобрать самые голосуемые
+        $args_popular = array(
+            'posts_per_page' => 5,
+            'cat' => $category_id,
+            'meta_query' => array(
+                array(
+                    'key' => '_tobeornot_votes',
+                    'value' => '0',
+                    'compare' => '>',
+                    'type' => 'NUMERIC'
+                )
+            ),
+            'orderby' => 'meta_value_num',
+            'meta_key' => '_tobeornot_votes',
+            'order' => 'DESC'
+        );
+        // отобрать подходищие к завершению
+        $now = new DateTime();
+        $args_closest = array(
+            'posts_per_page' => 5,
+            'cat' => $category_id,
+            'meta_query' => array(
+                array(
+                    'key' => '_tobeornot_date',
+                    'value' => $now->format( 'U' ),
+                    'compare' => '>',
+                    'type' => 'NUMERIC'
+                )
+            ),
+            'orderby' => 'meta_value_num',
+            'meta_key' => '_tobeornot_date',
+            'order' => 'ASC'
+        );
+
+        ob_start();
+        require plugin_dir_path( __FILE__ ) . '/partials/shortcode_top.php';
+        $partial = ob_get_clean();
+        $html .= $partial;
+    }
+
+    return $html;
+}
+
 /* [tobeornot] Shortcode
  *
  * [tobeornot (counter|voter|result|admin)]
@@ -184,6 +314,7 @@ function tobeornot_shortcode( $atts ) {
 }
 function tobeornot_shortcode_register() {
     add_shortcode( 'tobeornot', 'tobeornot_shortcode' );
+    add_shortcode( 'tobeontop', 'tobeontop_shortcode' );
 }
 add_action( 'init', 'tobeornot_shortcode_register' );
 
