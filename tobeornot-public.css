@@ -1,3 +1,6 @@
+.tobeornot_counter--title {
+    display: block;
+}
 .tobeornot_counter {
     display:block;
 }

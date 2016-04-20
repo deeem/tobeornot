@@ -109,7 +109,7 @@ function change_post_title( $title, $id ) {
         // для постов выводимых на главной странице, отдельно или в категории
         if ( is_home() || is_singular() || is_category() ) {
             $counter = do_shortcode( '[tobeornot counter id=' . $id . ']' );
-            $title = $title . $counter;
+            $title = $counter . '<div class="tobeornot_counter--title">' . $title . '</div>';
         }
     }
 
@@ -267,7 +267,7 @@ add_action( 'init', 'tobeornot_shortcode_register' );
  * Формирует сообщение о дате завершения голосования
  * @param integer $post_id post id
  * @param bool $return_timestamp выводить в формате timestamp
- * @return integer|string|false|null сообщение с оставшемя временем, null в случае просроченной даты, false в случае не установленной даты
+ * @return integer|string|false|null timestamp, сообщение с оставшемя временем, null в случае просроченной даты, false в случае не установленной даты
  */
 function counter_message( $post_id, $return_timestamp = false ) {
     $timestamp = get_post_meta( $post_id, '_tobeornot_date', true );
