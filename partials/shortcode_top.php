@@ -1,3 +1,4 @@
+<?php global $post; ?>
 <div class="tobeornot_dashboard">
     <div class="tobeornot_dashboard--latest">
         <h4>самые последние</h4>
@@ -7,7 +8,7 @@
         if ( $query_latest->have_posts() ) {
             while ( $query_latest->have_posts() ) {
                 $query_latest->the_post(); ?>
-                <li><a href="<?php the_permalink(); ?>"><?php the_title();?></a></li>
+                <li><a href="<?php the_permalink(); ?>"><?php echo $post->post_title;?></a></li>
             <?php
             }
             wp_reset_postdata();
@@ -23,7 +24,7 @@
         if ( $query_popular->have_posts() ) {
             while ( $query_popular->have_posts() ) {
                 $query_popular->the_post();?>
-                <li><a href="<?php the_permalink(); ?>"><?php the_title();?></a></li>
+                <li><a href="<?php the_permalink(); ?>"><?php echo $post->post_title;?></a></li>
             <?php
             }
             wp_reset_postdata();
@@ -39,7 +40,7 @@
         if ( $query_closest->have_posts() ) {
             while ( $query_closest->have_posts() ) {
                 $query_closest->the_post();?>
-                <li><a href="<?php the_permalink(); ?>"><?php the_title();?></a></li>
+                <li><a href="<?php the_permalink(); ?>"><?php echo $post->post_title;?></a></li>
             <?php
             }
             wp_reset_postdata();

@@ -104,12 +104,11 @@ add_action( 'manage_post_posts_custom_column', 'populate_posts_columns', 10, 2 )
 
 /* Modify title */
 function change_post_title( $title, $id ) {
+    // тип поста="post" и внутри "петли"
     if ( 'post' == get_post_type() && in_the_loop() ) {
-        $counter = do_shortcode( '[tobeornot counter id=' . $id . ']' );
-        if ( is_single() ) {
-            $title = $counter . $title;
-        }
-        if ( is_archive() ) {
+        // для постов выводимых на главной странице, отдельно или в категории
+        if ( is_home() || is_singular() || is_category() ) {
+            $counter = do_shortcode( '[tobeornot counter id=' . $id . ']' );
             $title = $title . $counter;
         }
     }
@@ -123,7 +122,7 @@ function change_post_content( $content ) {
     if ( 'post' == get_post_type() && is_single() ) {
         $voter = do_shortcode( '[tobeornot voter]' );
     }
-    
+
     return $content . $voter;
 }
 add_filter( 'the_content', 'change_post_content' );
