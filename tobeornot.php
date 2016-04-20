@@ -90,7 +90,7 @@ add_action( 'manage_post_posts_columns', 'manage_columns_for_posts' );
 /* Populate columns */
 function populate_posts_columns( $column, $post_id ) {
     if ( $column == 'tobeornot_counter' ) {
-        $counter = do_shortcode( '[tobeornot admin id=' . $post_id . ']' );
+        $counter = do_shortcode( '[tobeornot counter_text id=' . $post_id . ']' );
         if ( $counter ) {
             echo $counter;
         }
@@ -211,10 +211,11 @@ function tobeontop_shortcode() {
 /* [tobeornot] Shortcode
  *
  * [tobeornot (counter|voter|result|admin)]
- * counter - счётчик обратного отсчёта
+ * counter - счётчик обратного отсчёта в виде html
+ * counter_text - счётчик обратного отсчёта без оформления
+ * counter_timestamp - счётчик обратного отсчёта в формате timestamp
  * voter - кнопки для голосования
  * result - результаты голосования
- * admin - счётчик обратного отсчёта для админки
  */
 function tobeornot_shortcode( $atts ) {
 
@@ -230,9 +231,13 @@ function tobeornot_shortcode( $atts ) {
 
         require plugin_dir_path( __FILE__ ) . '/partials/shortcode_counter.php';
 
-    } elseif ( in_array( 'admin', $atts ) ) {
+    } elseif ( in_array( 'counter_text', $atts ) ) {
 
         require plugin_dir_path( __FILE__ ) . '/partials/shortcode_admin.php';
+
+    } elseif( in_array( 'counter_timestamp', $atts ) ) {
+
+        return counter_message( $id, true );
 
     } elseif ( in_array( 'voter', $atts ) ) {
 
@@ -261,9 +266,10 @@ add_action( 'init', 'tobeornot_shortcode_register' );
 /**
  * Формирует сообщение о дате завершения голосования
  * @param integer $post_id post id
- * @return string|false|null сообщение с оставшемя временем, null в случае просроченной даты, false в случае не установленной даты
+ * @param bool $return_timestamp выводить в формате timestamp
+ * @return integer|string|false|null сообщение с оставшемя временем, null в случае просроченной даты, false в случае не установленной даты
  */
-function counter_message( $post_id ) {
+function counter_message( $post_id, $return_timestamp = false ) {
     $timestamp = get_post_meta( $post_id, '_tobeornot_date', true );
 
     if ( empty( $timestamp ) )  return FALSE;
@@ -272,6 +278,8 @@ function counter_message( $post_id ) {
     $counter = DateTime::createFromFormat( 'U', $timestamp )->diff( $now );
 
     if ( $timestamp < $now->format( 'U' ) ) return NULL;
+
+    if ( $return_timestamp ) return $timestamp;
 
     $message = '';
     $message .= ( $counter->y ) ? $counter->y . ' г. ' : '';
