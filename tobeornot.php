@@ -120,10 +120,11 @@ add_filter( 'the_title', 'change_post_title', 10, 2 );
 
 /* Modify content */
 function change_post_content( $content ) {
-    if ( 'post' == get_post_type() ) {
+    if ( 'post' == get_post_type() && is_single() ) {
         $voter = do_shortcode( '[tobeornot voter]' );
-        return $content . $voter;
     }
+    
+    return $content . $voter;
 }
 add_filter( 'the_content', 'change_post_content' );
 
