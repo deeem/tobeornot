@@ -275,40 +275,34 @@ function tobeornot_shortcode( $atts ) {
 
     $id = ( $atts['id'] ) ? $atts['id'] : get_the_ID();
     $message = counter_message( $id );
-    $html = '';
 
-    // counter
+    $html = '';
+    ob_start();
+
     if ( in_array( 'counter', $atts ) ) {
-        ob_start();
+
         require plugin_dir_path( __FILE__ ) . '/partials/shortcode_counter.php';
-        $partial = ob_get_clean();
-        $html .= $partial;
-    }
-    // admin
-    if ( in_array( 'admin', $atts ) ) {
-        ob_start();
+
+    } elseif ( in_array( 'admin', $atts ) ) {
+
         require plugin_dir_path( __FILE__ ) . '/partials/shortcode_admin.php';
-        $partial = ob_get_clean();
-        $html .= $partial;
-    }
-    // voter
-    if ( in_array( 'voter', $atts ) ) {
+
+    } elseif ( in_array( 'voter', $atts ) ) {
+
         if ( !empty( $message ) ) {
-            ob_start();
             require plugin_dir_path( __FILE__ ) . '/partials/shortcode_voter.php';
-            $partial = ob_get_clean();
-            $html .= $partial;
         }
-    }
-    // result
-    if ( in_array( 'result', $atts ) ) {
+
+    } elseif ( in_array( 'result', $atts ) ) {
+
         $tobeornot_true = get_post_meta( $id, '_tobeornot_true', true );
         $tobeornot_false = get_post_meta( $id, '_tobeornot_false', true );
-        ob_start();
         require plugin_dir_path( __FILE__ ) . '/partials/shortcode_result.php';
-        $partial = ob_get_clean();
-        $html .= $partial;
+        
     }
+
+    $partial = ob_get_clean();
+    $html .= $partial;
 
     return $html;
 }
