@@ -52,3 +52,31 @@
 .tobeornot_result {}
 .tobeornot_result--true {}
 .tobeornot_result--false {}
+
+.tobeornot_dashboard {
+
+}
+.tobeornot_dashboard_section {
+
+}
+.tobeornot_dashboard_section h4 {
+    text-transform: uppercase;
+    font-weight: bold;
+    border-bottom: 2px solid;
+}
+.tobeornot_dashboard_section ul {
+    list-style: none;
+    padding-left: 0;
+}
+.tobeornot_dashboard_section ul li a {
+    border-bottom: none;
+    text-decoration: none;
+}
+.tobeornot_dashboard_latest {
+
+}
+.tobeornot_dashboard_popular {
+
+}
+.tobeornot_dashboard_closest {
+}
